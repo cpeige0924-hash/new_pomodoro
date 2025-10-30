@@ -1,7 +1,4 @@
 # main.py
-# ----------------------------
-# 程序入口：负责页面切换和数据记录。
-# ----------------------------
 import sys
 from PyQt5.QtWidgets import QApplication, QStackedWidget
 from ui.menu_page import MenuPage
@@ -18,29 +15,34 @@ class MainWindow(QStackedWidget):
         self.resize(300, 200)
 
     def start_pomodoro(self, minutes):
-        """进入番茄钟页面"""
-        self.pomodoro = PomodoroPage(minutes, 
-                                     lambda: self.finish_pomodoro(minutes),
-                                     self.quit_pomodoro)
-        self.addWidget(self.pomodoro)
-        self.setCurrentWidget(self.pomodoro)
+        """启动番茄钟并隐藏主界面"""
+        self.hide()  # 🩵 启动后隐藏主窗口
+
+        self.pomodoro = PomodoroPage(
+            minutes,
+            lambda: self.finish_pomodoro(minutes),
+            self.quit_pomodoro
+        )
+        self.pomodoro.show()
 
     def finish_pomodoro(self, minutes):
         """番茄钟完成：保存并返回主菜单"""
         add_focus(minutes)
-        self.show_menu()
+        self.pomodoro.close()
+        self.show()              # 🩵 重新显示主界面
+        self.activateWindow()    # 可选：聚焦窗口
+        self.menu.refresh_stats()
 
     def quit_pomodoro(self):
         """退出番茄钟：不计入时长"""
-        self.show_menu()
-
-    def show_menu(self):
-        """回主菜单并刷新显示"""
-        self.menu.refresh_stats()
-        self.setCurrentWidget(self.menu)
+        if hasattr(self, "pomodoro"):
+            self.pomodoro.close()
+        self.show()              # 🩵 回到主界面
+        self.activateWindow()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = MainWindow()
     window.show()
     sys.exit(app.exec_())
+
