@@ -1,6 +1,6 @@
 # ui/menu_page.py
 # ----------------------------
-# 主菜单界面：选择番茄钟长度、显示今日专注时长、进入计时页面。
+# 主菜单界面（柔光金杏风格）
 # ----------------------------
 from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtCore import Qt
@@ -9,26 +9,46 @@ from core.pet_manager import load_growing
 from datetime import date
 from ui.garden_page import GardenPage
 
-
 class MenuPage(QWidget):
     def __init__(self, start_callback):
         super().__init__()
         self.start_callback = start_callback
-        self.selected_minutes = 25  # 默认 25 分钟
+        self.selected_minutes = 25
 
-        # --- Title ---
-        title = QLabel("🍅 Pomodoro Timer")
-        title.setStyleSheet("font-size: 20px; font-weight: bold;")
+        # --- 样式主题 ---
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #fffaf3;
+            }
+            QLabel {
+                color: #3a2f2f;
+            }
+            QPushButton {
+                background-color: #f7e7c2;
+                color: #3a2f2f;
+                border-radius: 10px;
+                font-weight: bold;
+                font-size: 14px;
+                padding: 5px 10px;
+            }
+            QPushButton:hover {
+                background-color: #f3d9a8;
+            }
+        """)
 
-        # --- Today's Focus ---
+        # --- 标题 ---
+        title = QLabel("🍅 Pomodoro Garden")
+        title.setStyleSheet("font-size: 22px; font-weight: bold; color: #2d2a26;")
+
+        # --- 今日专注时长 ---
         self.stats = QLabel("")
-        self.stats.setStyleSheet("font-size: 13px; color: #333;")
+        self.stats.setStyleSheet("font-size: 13px; color: #5c4b3b;")
 
-        # --- Pet status (右下角) ---
+        # --- 宠物状态（右下角） ---
         self.pet_label = QLabel("")
-        self.pet_label.setStyleSheet("font-size: 12px; color: #666; text-align: right;")
+        self.pet_label.setStyleSheet("font-size: 12px; color: #6b6057; text-align: right;")
 
-        # --- Mode selection ---
+        # --- 模式选择 ---
         label = QLabel("Select your session length:")
         label.setStyleSheet("font-size: 14px;")
 
@@ -39,48 +59,49 @@ class MenuPage(QWidget):
         self.btn_history = QPushButton("📅 View History")
 
         for b in [self.btn_25, self.btn_50, self.btn_start, self.btn_garden, self.btn_history]:
-            b.setFixedHeight(35)
-            b.setStyleSheet("font-size:14px;")
+            b.setFixedHeight(36)
 
-        # Layout for 25/50 buttons
+        # 模式按钮布局
         mode_layout = QHBoxLayout()
         mode_layout.addWidget(self.btn_25)
         mode_layout.addWidget(self.btn_50)
 
-        # --- Main layout ---
+        # 主布局
         layout = QVBoxLayout()
-        layout.addWidget(title)
-        layout.addWidget(self.stats)
-        layout.addWidget(label)
+        layout.addWidget(title, alignment=Qt.AlignCenter)
+        layout.addWidget(self.stats, alignment=Qt.AlignCenter)
+        layout.addSpacing(6)
+        layout.addWidget(label, alignment=Qt.AlignCenter)
         layout.addLayout(mode_layout)
+        layout.addSpacing(8)
         layout.addWidget(self.btn_start)
-        layout.addWidget(self.btn_garden)   # ← 花园按钮提前
+        layout.addWidget(self.btn_garden)
         layout.addWidget(self.btn_history)
+        layout.addSpacing(10)
         layout.addWidget(self.pet_label, alignment=Qt.AlignRight)
         self.setLayout(layout)
 
-        # --- Button events ---
+        # 事件绑定
         self.btn_25.clicked.connect(lambda: self.select_mode(25))
         self.btn_50.clicked.connect(lambda: self.select_mode(50))
         self.btn_start.clicked.connect(self.start_clicked)
         self.btn_garden.clicked.connect(self.show_garden)
         self.btn_history.clicked.connect(self.show_history)
 
-        # 初始化显示
         self.refresh_stats()
 
     def select_mode(self, minutes):
-        """切换模式（按钮高亮）"""
+        """切换模式按钮高亮"""
         self.selected_minutes = minutes
         if minutes == 25:
-            self.btn_25.setStyleSheet("background:#f87171; color:white; font-size:14px;")
-            self.btn_50.setStyleSheet("font-size:14px;")
+            self.btn_25.setStyleSheet("background:#f87171; color:white; border-radius:10px; font-size:14px;")
+            self.btn_50.setStyleSheet("background:#f7e7c2; color:#3a2f2f; border-radius:10px; font-size:14px;")
         else:
-            self.btn_50.setStyleSheet("background:#f87171; color:white; font-size:14px;")
-            self.btn_25.setStyleSheet("font-size:14px;")
+            self.btn_50.setStyleSheet("background:#f87171; color:white; border-radius:10px; font-size:14px;")
+            self.btn_25.setStyleSheet("background:#f7e7c2; color:#3a2f2f; border-radius:10px; font-size:14px;")
 
     def refresh_stats(self):
-        """刷新今日专注时长和宠物状态"""
+        """刷新今日专注时长与宠物状态"""
         history = get_history()
         today = date.today().isoformat()
         total = history.get(today, 0)
@@ -94,25 +115,24 @@ class MenuPage(QWidget):
             self.pet_label.setText("No current pet 🕊")
 
     def start_clicked(self):
-        """点击开始，调用主界面函数"""
         self.start_callback(self.selected_minutes)
 
     def show_history(self):
-        """显示历史专注时长"""
+        """查看历史"""
         history = get_history()
         if not history:
             QMessageBox.information(self, "History", "No focus records yet.")
             return
-
         text = "Date\tMinutes\n" + "-" * 22 + "\n"
         for day, minutes in sorted(history.items()):
             text += f"{day}\t{minutes} min\n"
         QMessageBox.information(self, "Focus History", text)
 
     def show_garden(self):
-        """打开花园窗口"""
+        """打开花园"""
         self.garden_window = GardenPage()
         self.garden_window.show()
+
 
 
 

@@ -61,5 +61,12 @@
         "species": "dog",
         "growth_value": 2.0,
         "stage": 3
+    },
+    {
+        "id": 10,
+        "name": "Loen",
+        "species": "dog",
+        "growth_value": 2.5,
+        "stage": 3
     }
 ]
