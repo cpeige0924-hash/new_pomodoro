@@ -11,7 +11,7 @@ class PomodoroTimer(QObject):
         # 🧩 TEST MODE SWITCH
         testmode = True
         if testmode:
-            print("⚙️ Test mode active: 25 min = 3 s, 50 min = 6 s")
+            print("⚙️ Test mode active: 25 min = 6 s, 50 min = 12 s")
 
         # 确保参数是数字（可能是 25 / 25.0 / "25"）
         try:
@@ -22,9 +22,9 @@ class PomodoroTimer(QObject):
         # ✅ 根据是否测试模式决定秒数
         if testmode:
             if 24 <= m <= 26:
-                total_seconds = 3
-            elif 49 <= m <= 51:
                 total_seconds = 6
+            elif 49 <= m <= 51:
+                total_seconds = 12
             else:
                 total_seconds = int(m * 60)
         else:

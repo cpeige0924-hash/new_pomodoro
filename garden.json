@@ -12,5 +12,54 @@
         "species": "rabbit",
         "growth_value": 2.0,
         "stage": 3
+    },
+    {
+        "id": 3,
+        "name": "Noa",
+        "species": "duck",
+        "growth_value": 2.5,
+        "stage": 3
+    },
+    {
+        "id": 4,
+        "name": "Natasha",
+        "species": "dog",
+        "growth_value": 2.5,
+        "stage": 3
+    },
+    {
+        "id": 5,
+        "name": "Roit",
+        "species": "cat",
+        "growth_value": 2.0,
+        "stage": 3
+    },
+    {
+        "id": 6,
+        "name": "Page",
+        "species": "rabbit",
+        "growth_value": 2.0,
+        "stage": 3
+    },
+    {
+        "id": 7,
+        "name": "Elsa",
+        "species": "dog",
+        "growth_value": 2.0,
+        "stage": 3
+    },
+    {
+        "id": 8,
+        "name": "Chaos",
+        "species": "dog",
+        "growth_value": 2.5,
+        "stage": 3
+    },
+    {
+        "id": 9,
+        "name": "Jason",
+        "species": "dog",
+        "growth_value": 2.0,
+        "stage": 3
     }
 ]

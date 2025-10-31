@@ -7,6 +7,7 @@ from PyQt5.QtCore import Qt
 from core.state_manager import get_history
 from core.pet_manager import load_growing
 from datetime import date
+from ui.garden_page import GardenPage
 
 class MenuPage(QWidget):
     def __init__(self, start_callback):
@@ -33,6 +34,7 @@ class MenuPage(QWidget):
         self.btn_25 = QPushButton("25 min")
         self.btn_50 = QPushButton("50 min")
         self.btn_start = QPushButton("Start")
+        self.btn_garden = QPushButton("🌸 Garden")
 
         for b in [self.btn_25, self.btn_50, self.btn_start]:
             b.setFixedHeight(35)
@@ -59,11 +61,13 @@ class MenuPage(QWidget):
         layout.addWidget(self.btn_history)
         layout.addWidget(self.pet_label, alignment=Qt.AlignRight)
         self.setLayout(layout)
+        layout.addWidget(self.btn_garden)
 
         # --- Button events ---
         self.btn_25.clicked.connect(lambda: self.select_mode(25))
         self.btn_50.clicked.connect(lambda: self.select_mode(50))
         self.btn_start.clicked.connect(self.start_clicked)
+        self.btn_garden.clicked.connect(self.show_garden)
 
         # 初始化显示
         self.refresh_stats()
@@ -108,5 +112,10 @@ class MenuPage(QWidget):
             text += f"{day}\t{minutes} min\n"
 
         QMessageBox.information(self, "Focus History", text)
+
+    def show_garden(self):
+        """打开花园窗口"""
+        self.garden_window = GardenPage()
+        self.garden_window.show()
 
 

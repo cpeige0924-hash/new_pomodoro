@@ -1,151 +1,152 @@
- # ui/pomodoro_page.py
-# ------------------------------------------------
-# 番茄钟倒计时界面：半透明圆角深色面板、置顶、右下角、全区域可拖动
-# ------------------------------------------------
-from PyQt5.QtWidgets import (
-    QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QApplication
-)
-from PyQt5.QtCore import Qt, QPoint, QEvent
+# ui/pomodoro_page.py
+# ---------------------------------------------------------
+# Pomodoro floating window: timer + pet ASCII display
+# ---------------------------------------------------------
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QScrollArea, QApplication
+from PyQt5.QtCore import Qt
 from core.timer import PomodoroTimer
+from core.pet_manager import load_growing
+from core.ascii_art import get_ascii
+
 
 class PomodoroPage(QWidget):
     def __init__(self, minutes, on_finish, on_quit):
-        # 顶层窗口：用 QWidget 作为独立窗体（不是栈里的子页）
-        super().__init__(parent=None)
+        super().__init__()
         self.on_finish = on_finish
         self.on_quit = on_quit
         self.is_paused = False
-        self._dragging = False
-        self._drag_pos = QPoint()
 
-        # —— 窗口外观：半透明+无边框+置顶（不进任务栏） ——
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setWindowFlags(
-            Qt.Window |                # 顶层窗口
-            Qt.Tool |                  # 不占任务栏
-            Qt.FramelessWindowHint |   # 无标题栏
-            Qt.WindowStaysOnTopHint    # 永远置顶
-        )
+        # 🐾 load growing pet only
+        self.pet = load_growing()
+        self.pet_species = self.pet.species
+        self.pet_stage = self.pet.stage
 
-        # —— 外层根布局（透明），内层面板提供可读背景 ——
-        root = QVBoxLayout(self)
-        root.setContentsMargins(0, 0, 0, 0)
-
-        self.panel = QWidget(self)            # 深色半透明圆角底
-        self.panel.setObjectName("panel")
-        self.panel.setStyleSheet("""
-            #panel {
-                background-color: rgba(20, 20, 20, 200);   /* 深色半透明 */
-                border-radius: 14px;
-            }
+        # --- Pet display ---
+        self.pet_label = QLabel()
+        self.pet_label.setAlignment(Qt.AlignCenter)
+        self.pet_label.setStyleSheet("""
             QLabel {
-                color: white;                /* 文本高对比 */
+                font-family: 'Courier New', monospace;
+                font-size: 14px;
+                color: #2d2a26;
+                background-color: rgba(255,255,245,80);
+                border-radius: 8px;
+                padding: 4px;
             }
         """)
-        panel_layout = QVBoxLayout(self.panel)
-        panel_layout.setContentsMargins(16, 16, 16, 16)
-        panel_layout.setSpacing(12)
+        self.pet_label.setText(get_ascii(self.pet_species, self.pet_stage))
+
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setFrameShape(QScrollArea.NoFrame)
+        scroll.setStyleSheet("background: transparent;")
+        scroll.setWidget(self.pet_label)
 
         # --- Timer display ---
-        self.label = QLabel("00:00", self.panel)
-        self.label.setAlignment(Qt.AlignCenter)
-        self.label.setStyleSheet("font-size: 36px; font-weight: bold;")
+        self.timer_label = QLabel("00:00")
+        self.timer_label.setAlignment(Qt.AlignCenter)
+        self.timer_label.setStyleSheet("font-size: 28px; font-weight: bold; color: #2d2a26;")
 
         # --- Buttons ---
-        self.btn_pause = QPushButton("Pause", self.panel)
-        self.btn_quit  = QPushButton("Quit",  self.panel)
-        for b in (self.btn_pause, self.btn_quit):
-            b.setFixedHeight(36)
-            b.setStyleSheet("""
+        self.btn_pause = QPushButton("Pause")
+        self.btn_quit = QPushButton("Quit")
+        for btn in [self.btn_pause, self.btn_quit]:
+            btn.setFixedHeight(34)
+            btn.setStyleSheet("""
                 QPushButton {
-                    background-color: rgba(255,255,255,0.18);
-                    color: white;
-                    font-size: 14px;
-                    border: 0px;
-                    border-radius: 8px;
+                    background-color: #f1e6cf;
+                    color: #3a2f2f;
+                    font-weight: bold;
+                    border-radius: 10px;
                 }
-                QPushButton:hover {
-                    background-color: rgba(255,255,255,0.30);
-                }
-                QPushButton:pressed {
-                    background-color: rgba(255,255,255,0.38);
-                }
+                QPushButton:hover { background-color: #e9dcc2; }
             """)
 
-        btn_row = QHBoxLayout()
-        btn_row.setSpacing(10)
-        btn_row.addWidget(self.btn_pause)
-        btn_row.addWidget(self.btn_quit)
+        layout_btn = QHBoxLayout()
+        layout_btn.addWidget(self.btn_pause)
+        layout_btn.addWidget(self.btn_quit)
 
-        panel_layout.addWidget(self.label)
-        panel_layout.addLayout(btn_row)
+        # --- Layout ---
+        layout = QVBoxLayout()
+        layout.addWidget(scroll)
+        layout.addWidget(self.timer_label)
+        layout.addLayout(layout_btn)
+        layout.setSpacing(8)
+        self.setLayout(layout)
 
-        root.addWidget(self.panel)
+        # --- Window appearance ---
+        self.setWindowTitle("Pomodoro Pet")
+        self.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
+        self.setWindowOpacity(0.92)
+        self.setStyleSheet("background-color: rgba(255, 250, 240, 230); border: 1px solid #d9cbb5;")
 
-        # —— 设定默认尺寸与右下角位置 ——
-        w, h = 260, 160
-        self.resize(w, h)
-        screen_geo = QApplication.primaryScreen().availableGeometry()
-        x = screen_geo.right()  - w - 24
-        y = screen_geo.bottom() - h - 24
+        # position: bottom right
+        screen = QApplication.primaryScreen().geometry()
+        window_size = self.sizeHint()
+        x = screen.width() - window_size.width() - 40
+        y = screen.height() - window_size.height() - 80
         self.move(x, y)
 
-        # —— 全区域可拖动：对 self 与 panel、label 安装事件过滤器 —
-        for wdg in (self, self.panel, self.label):
-            wdg.installEventFilter(self)
+        # enable dragging
+        self._drag_pos = None
+        self.mousePressEvent = self._start_drag
+        self.mouseMoveEvent = self._move_window
+        self.mouseReleaseEvent = self._end_drag
 
         # --- Timer logic ---
         self.timer = PomodoroTimer(minutes, self.update_time, self.finish_session)
         self.timer.start()
 
-        # --- Button events ---
+        # --- Events ---
         self.btn_pause.clicked.connect(self.toggle_pause)
         self.btn_quit.clicked.connect(self.quit_session)
 
-    # 事件过滤器：在非按钮区域拖动窗口（按钮仍可正常点击）
-    def eventFilter(self, obj, event):
-        # 不拦截按钮点击
-        if obj in (self.btn_pause, self.btn_quit):
-            return super().eventFilter(obj, event)
-
-        if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
-            self._dragging = True
-            self._drag_pos = event.globalPos() - self.frameGeometry().topLeft()
-            return True
-
-        if event.type() == QEvent.MouseMove and self._dragging:
-            self.move(event.globalPos() - self._drag_pos)
-            return True
-
-        if event.type() == QEvent.MouseButtonRelease:
-            self._dragging = False
-            return True
-
-        return super().eventFilter(obj, event)
-
-    # --- Timer updates ---
+    # -------------------------------
+    # Timer update methods
+    # -------------------------------
     def update_time(self, remaining):
         mins, secs = divmod(remaining, 60)
-        self.label.setText(f"{mins:02d}:{secs:02d}")
+        self.timer_label.setText(f"{mins:02d}:{secs:02d}")
 
     def toggle_pause(self):
         if self.is_paused:
             self.timer.resume()
             self.btn_pause.setText("Pause")
-            self.is_paused = False
         else:
             self.timer.pause()
             self.btn_pause.setText("Resume")
-            self.is_paused = True
+        self.is_paused = not self.is_paused
 
     def finish_session(self):
-        self.on_finish()
+        """When the timer completes, close window and return to menu"""
+        self.timer.stop()
         self.close()
+        self.on_finish()
 
     def quit_session(self):
+        """Manual quit"""
         self.timer.stop()
-        self.on_quit()
         self.close()
+        self.on_quit()
+
+    # -------------------------------
+    # Dragging implementation
+    # -------------------------------
+    def _start_drag(self, event):
+        if event.button() == Qt.LeftButton:
+            self._drag_pos = event.globalPos() - self.frameGeometry().topLeft()
+
+    def _move_window(self, event):
+        if event.buttons() == Qt.LeftButton and self._drag_pos:
+            self.move(event.globalPos() - self._drag_pos)
+
+    def _end_drag(self, event):
+        self._drag_pos = None
+
+
+
+
+
 
 
 

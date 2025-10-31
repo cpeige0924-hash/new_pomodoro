@@ -46,10 +46,15 @@ def clear_growing():
     Pet.clear()
 
 # ---------- 陪伴宠物（来自花园） ----------
-def set_companion(pet_id: int):
-    _save_json(COMPANION_FILE, {"companion_id": int(pet_id)})
+GARDEN_FILE = "garden.json"
 
-def get_companion_id():
-    d = _load_json(COMPANION_FILE, {})
-    return d.get("companion_id", None)
+def load_garden():
+    """读取花园中的所有宠物"""
+    if not os.path.exists(GARDEN_FILE):
+        return []
+    try:
+        with open(GARDEN_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return []
 
