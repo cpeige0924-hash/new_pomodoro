@@ -10,14 +10,14 @@ from core.ascii_art import get_ascii
 
 
 class PomodoroPage(QWidget):
-    def __init__(self, minutes, on_finish, on_quit):
+    def __init__(self, minutes, on_finish, on_quit, pet):
         super().__init__()
         self.on_finish = on_finish
         self.on_quit = on_quit
         self.is_paused = False
 
         # 🐾 加载成长中宠物
-        self.pet = load_growing()
+        self.pet = pet
         self.pet_species = self.pet.species
         self.pet_stage = self.pet.stage
 

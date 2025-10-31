@@ -68,5 +68,40 @@
         "species": "dog",
         "growth_value": 2.5,
         "stage": 3
+    },
+    {
+        "id": 11,
+        "name": "Skylar",
+        "species": "cat",
+        "growth_value": 2.0,
+        "stage": 3
+    },
+    {
+        "id": 12,
+        "name": "Ali",
+        "species": "duck",
+        "growth_value": 2.0,
+        "stage": 3
+    },
+    {
+        "id": 13,
+        "name": "Sasha",
+        "species": "rabbit",
+        "growth_value": 2.0,
+        "stage": 3
+    },
+    {
+        "id": 14,
+        "name": "Katy",
+        "species": "Rabbit",
+        "growth_value": 2.0,
+        "stage": 3
+    },
+    {
+        "id": 15,
+        "name": "Shirley",
+        "species": "Rabbit",
+        "growth_value": 2.0,
+        "stage": 3
     }
 ]

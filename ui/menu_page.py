@@ -1,13 +1,15 @@
 # ui/menu_page.py
 # ----------------------------
-# 主菜单界面（柔光金杏风格）
+# 主菜单界面（柔光金杏风格 + 美化弹窗）
 # ----------------------------
 from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout, QMessageBox
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon
 from core.state_manager import get_history
 from core.pet_manager import load_growing
 from datetime import date
 from ui.garden_page import GardenPage
+
 
 class MenuPage(QWidget):
     def __init__(self, start_callback):
@@ -15,7 +17,7 @@ class MenuPage(QWidget):
         self.start_callback = start_callback
         self.selected_minutes = 25
 
-        # --- 样式主题 ---
+        # --- 窗口样式 ---
         self.setStyleSheet("""
             QWidget {
                 background-color: #fffaf3;
@@ -88,10 +90,11 @@ class MenuPage(QWidget):
         self.btn_garden.clicked.connect(self.show_garden)
         self.btn_history.clicked.connect(self.show_history)
 
+        # 初始化数据
         self.refresh_stats()
 
+    # ---------------- 模式切换 ----------------
     def select_mode(self, minutes):
-        """切换模式按钮高亮"""
         self.selected_minutes = minutes
         if minutes == 25:
             self.btn_25.setStyleSheet("background:#f87171; color:white; border-radius:10px; font-size:14px;")
@@ -100,8 +103,8 @@ class MenuPage(QWidget):
             self.btn_50.setStyleSheet("background:#f87171; color:white; border-radius:10px; font-size:14px;")
             self.btn_25.setStyleSheet("background:#f7e7c2; color:#3a2f2f; border-radius:10px; font-size:14px;")
 
+    # ---------------- 刷新状态 ----------------
     def refresh_stats(self):
-        """刷新今日专注时长与宠物状态"""
         history = get_history()
         today = date.today().isoformat()
         total = history.get(today, 0)
@@ -114,24 +117,56 @@ class MenuPage(QWidget):
         else:
             self.pet_label.setText("No current pet 🕊")
 
+    # ---------------- 按钮事件 ----------------
     def start_clicked(self):
         self.start_callback(self.selected_minutes)
 
     def show_history(self):
-        """查看历史"""
         history = get_history()
         if not history:
-            QMessageBox.information(self, "History", "No focus records yet.")
+            self._show_pretty_message("History", "No focus records yet.")
             return
+
         text = "Date\tMinutes\n" + "-" * 22 + "\n"
         for day, minutes in sorted(history.items()):
             text += f"{day}\t{minutes} min\n"
-        QMessageBox.information(self, "Focus History", text)
+
+        self._show_pretty_message("Focus History", text)
 
     def show_garden(self):
-        """打开花园"""
         self.garden_window = GardenPage()
         self.garden_window.show()
+
+    # ---------------- 自定义柔光弹窗 ----------------
+    def _show_pretty_message(self, title, text):
+        msg = QMessageBox(QMessageBox.NoIcon, title, text)
+        msg.setWindowIcon(QIcon())  # 🚫 去掉标题栏小书
+        msg.setIcon(QMessageBox.NoIcon)  # 🚫 去掉蓝色感叹号
+        msg.setWindowFlags(msg.windowFlags() & ~0x00000040)  # 🚫 去掉系统默认窗口图标（关键）
+
+        msg.setStyleSheet("""
+            QMessageBox {
+                background-color: #fffaf3;
+                border: 1px solid #e4d3b4;
+                border-radius: 10px;
+            }
+            QLabel {
+                color: #3a2f2f;
+                font-size: 14px;
+            }
+            QPushButton {
+                background-color: #f7e7c2;
+                color: #3a2f2f;
+                font-weight: bold;
+                border-radius: 8px;
+                padding: 4px 12px;
+            }
+            QPushButton:hover {
+                background-color: #f3d9a8;
+            }
+        """)
+        msg.exec_()
+
 
 
 
