@@ -9,6 +9,7 @@ from core.pet_manager import load_growing
 from datetime import date
 from ui.garden_page import GardenPage
 
+
 class MenuPage(QWidget):
     def __init__(self, start_callback):
         super().__init__()
@@ -35,8 +36,9 @@ class MenuPage(QWidget):
         self.btn_50 = QPushButton("50 min")
         self.btn_start = QPushButton("Start")
         self.btn_garden = QPushButton("🌸 Garden")
+        self.btn_history = QPushButton("📅 View History")
 
-        for b in [self.btn_25, self.btn_50, self.btn_start]:
+        for b in [self.btn_25, self.btn_50, self.btn_start, self.btn_garden, self.btn_history]:
             b.setFixedHeight(35)
             b.setStyleSheet("font-size:14px;")
 
@@ -45,12 +47,6 @@ class MenuPage(QWidget):
         mode_layout.addWidget(self.btn_25)
         mode_layout.addWidget(self.btn_50)
 
-        # --- History button ---
-        self.btn_history = QPushButton("📅 View History")
-        self.btn_history.setFixedHeight(30)
-        self.btn_history.setStyleSheet("font-size:13px;")
-        self.btn_history.clicked.connect(self.show_history)
-
         # --- Main layout ---
         layout = QVBoxLayout()
         layout.addWidget(title)
@@ -58,16 +54,17 @@ class MenuPage(QWidget):
         layout.addWidget(label)
         layout.addLayout(mode_layout)
         layout.addWidget(self.btn_start)
+        layout.addWidget(self.btn_garden)   # ← 花园按钮提前
         layout.addWidget(self.btn_history)
         layout.addWidget(self.pet_label, alignment=Qt.AlignRight)
         self.setLayout(layout)
-        layout.addWidget(self.btn_garden)
 
         # --- Button events ---
         self.btn_25.clicked.connect(lambda: self.select_mode(25))
         self.btn_50.clicked.connect(lambda: self.select_mode(50))
         self.btn_start.clicked.connect(self.start_clicked)
         self.btn_garden.clicked.connect(self.show_garden)
+        self.btn_history.clicked.connect(self.show_history)
 
         # 初始化显示
         self.refresh_stats()
@@ -110,12 +107,12 @@ class MenuPage(QWidget):
         text = "Date\tMinutes\n" + "-" * 22 + "\n"
         for day, minutes in sorted(history.items()):
             text += f"{day}\t{minutes} min\n"
-
         QMessageBox.information(self, "Focus History", text)
 
     def show_garden(self):
         """打开花园窗口"""
         self.garden_window = GardenPage()
         self.garden_window.show()
+
 
 
