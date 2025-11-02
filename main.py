@@ -1,4 +1,8 @@
-# main.py — minimal, safe and aligned with pet_manager.py / pet.py
+#minimal, safe and aligned with pet_manager.py / pet.py
+# Run this script to start the program: main.py
+# Dependencies required: PyQt5
+# Note: This program uses a GUI and will NOT run on EdStem environment. 
+# Please run locally on a Python 3.10+ environment with PyQt5 installed.
 
 import sys
 from PyQt5.QtWidgets import QApplication, QStackedWidget, QDialog

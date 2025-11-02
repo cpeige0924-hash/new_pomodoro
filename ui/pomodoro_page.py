@@ -1,4 +1,3 @@
-# ui/pomodoro_page.py
 # ---------------------------------------------------------
 # Pomodoro floating window: timer + pet ASCII display
 # ---------------------------------------------------------
@@ -16,7 +15,7 @@ class PomodoroPage(QWidget):
         self.on_quit = on_quit
         self.is_paused = False
 
-        # 🐾 加载成长中宠物
+        #  加载成长中宠物
         self.pet = pet
         self.pet_species = self.pet.species
         self.pet_stage = self.pet.stage

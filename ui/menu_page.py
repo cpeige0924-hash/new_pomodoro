@@ -1,4 +1,3 @@
-# ui/menu_page.py
 # ----------------------------
 # 主菜单界面（柔光金杏风格 + 美化弹窗）
 # ----------------------------
@@ -9,6 +8,7 @@ from core.state_manager import get_history
 from core.pet_manager import load_growing
 from datetime import date
 from ui.garden_page import GardenPage
+from core.ui_utils import show_pretty_message
 
 
 class MenuPage(QWidget):
@@ -124,48 +124,20 @@ class MenuPage(QWidget):
     def show_history(self):
         history = get_history()
         if not history:
-            self._show_pretty_message("History", "No focus records yet.")
+            self.show_pretty_message("History", "No focus records yet.")
             return
 
         text = "Date\tMinutes\n" + "-" * 22 + "\n"
         for day, minutes in sorted(history.items()):
             text += f"{day}\t{minutes} min\n"
 
-        self._show_pretty_message("Focus History", text)
+        self.show_pretty_message("Focus History", text)
 
     def show_garden(self):
         self.garden_window = GardenPage()
         self.garden_window.show()
 
-    # ---------------- 自定义柔光弹窗 ----------------
-    def _show_pretty_message(self, title, text):
-        msg = QMessageBox(QMessageBox.NoIcon, title, text)
-        msg.setWindowIcon(QIcon())  # 🚫 去掉标题栏小书
-        msg.setIcon(QMessageBox.NoIcon)  # 🚫 去掉蓝色感叹号
-        msg.setWindowFlags(msg.windowFlags() & ~0x00000040)  # 🚫 去掉系统默认窗口图标（关键）
-
-        msg.setStyleSheet("""
-            QMessageBox {
-                background-color: #fffaf3;
-                border: 1px solid #e4d3b4;
-                border-radius: 10px;
-            }
-            QLabel {
-                color: #3a2f2f;
-                font-size: 14px;
-            }
-            QPushButton {
-                background-color: #f7e7c2;
-                color: #3a2f2f;
-                font-weight: bold;
-                border-radius: 8px;
-                padding: 4px 12px;
-            }
-            QPushButton:hover {
-                background-color: #f3d9a8;
-            }
-        """)
-        msg.exec_()
+    
 
 
 

@@ -1,4 +1,3 @@
-# ui/pet_setup.py
 # ----------------------------
 # Create-a-Pet dialog with soft UI styling.
 # ----------------------------

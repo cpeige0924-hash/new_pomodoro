@@ -1,4 +1,3 @@
-# core/pet.py
 import json, os
 
 GROWING_FILE = "pet_data.json"

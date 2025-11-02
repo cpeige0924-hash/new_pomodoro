@@ -1,4 +1,3 @@
-# core/pet_manager.py
 import json, os
 from core.pet import Pet
 
