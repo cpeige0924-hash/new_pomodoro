@@ -9,7 +9,7 @@ class PomodoroTimer(QObject):
         super().__init__()  # 先初始化父类
 
         # TEST MODE SWITCH
-        testmode = False
+        testmode = True
         if testmode:
             print("Test mode active: 25 min = 6 s, 50 min = 12 s")
 

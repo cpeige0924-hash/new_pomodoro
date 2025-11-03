@@ -131,5 +131,19 @@
         "species": "Dog",
         "growth_value": 2.0,
         "stage": 3
+    },
+    {
+        "id": 20,
+        "name": "Lucas",
+        "species": "Rabbit",
+        "growth_value": 2.5,
+        "stage": 3
+    },
+    {
+        "id": 21,
+        "name": "Ali",
+        "species": "Dog",
+        "growth_value": 2.0,
+        "stage": 3
     }
 ]

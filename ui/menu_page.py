@@ -124,14 +124,14 @@ class MenuPage(QWidget):
     def show_history(self):
         history = get_history()
         if not history:
-            self.show_pretty_message("History", "No focus records yet.")
+            show_pretty_message("History", "No focus records yet.")
             return
 
         text = "Date\tMinutes\n" + "-" * 22 + "\n"
         for day, minutes in sorted(history.items()):
             text += f"{day}\t{minutes} min\n"
 
-        self.show_pretty_message("Focus History", text)
+        show_pretty_message("Focus History", text)
 
     def show_garden(self):
         self.garden_window = GardenPage()
